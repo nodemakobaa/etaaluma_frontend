@@ -36,19 +36,28 @@ const ClassTeacherPanel = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const studentUrl = classId ? `${API_BASE_URL}/admin/students?class_id=${classId}` : `${API_BASE_URL}/admin/students`;
+        const studentUrl = classId 
+          ? `${API_BASE_URL}/admin/students?class_id=${classId}` 
+          : `${API_BASE_URL}/admin/students`;
+
         const [studentRes, examRes] = await Promise.all([
           fetch(studentUrl, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_BASE_URL}/teacher/exams`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
-        const studentData = await studentRes.json();
-        const examData = await examRes.json();
+        const studentData = studentRes.ok ? await studentRes.json() : {};
+        const examData = examRes.ok ? await examRes.json() : {};
 
-        setStudents(studentData.data || studentData || []);
-        setExams(examData.data || examData || []);
+        // Kinga thabiti dhidi ya muundo wowote wa API (inazuia blank page)
+        const studentList = studentData.data || studentData.students || (Array.isArray(studentData) ? studentData : []);
+        const examList = examData.data || examData.exams || (Array.isArray(examData) ? examData : []);
+
+        setStudents(Array.isArray(studentList) ? studentList : []);
+        setExams(Array.isArray(examList) ? examList : []);
       } catch (err) {
         console.error('Failed to load panel data', err);
+        setStudents([]);
+        setExams([]);
       } finally {
         setLoading(false);
       }
@@ -84,7 +93,10 @@ const ClassTeacherPanel = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans">
-        <p className="text-slate-500 font-semibold text-sm">Loading Class Teacher Panel...</p>
+        <div className="text-center space-y-2">
+          <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-600 font-semibold text-xs">Loading Class Teacher Panel...</p>
+        </div>
       </div>
     );
   }
@@ -121,9 +133,9 @@ const ClassTeacherPanel = () => {
                 className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white"
               >
                 <option value="">-- Select Student --</option>
-                {students.map((std) => (
-                  <option key={std.id || std.ID} value={std.id || std.ID}>
-                    {std.full_name} ({std.index_no || std.IndexNo})
+                {students.map((std, idx) => (
+                  <option key={std.id || std.ID || idx} value={std.id || std.ID}>
+                    {std.full_name || std.FullName} ({std.index_no || std.IndexNo || 'No Index'})
                   </option>
                 ))}
               </select>
@@ -137,9 +149,9 @@ const ClassTeacherPanel = () => {
                 className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white"
               >
                 <option value="">-- Select Examination --</option>
-                {exams.map((ex) => (
-                  <option key={ex.id || ex.ID} value={ex.id || ex.ID}>
-                    {ex.exam_type} - {ex.month} {ex.year} ({ex.term})
+                {exams.map((ex, idx) => (
+                  <option key={ex.id || ex.ID || idx} value={ex.id || ex.ID}>
+                    {ex.exam_type || ex.ExamType} - {ex.month || ex.Month} {ex.year || ex.Year} ({ex.term || ex.Term})
                   </option>
                 ))}
               </select>
