@@ -36,7 +36,6 @@ const ClassTeacherPanel = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        //Class_id itachuja wanafunzi wa darasa hilo
         const studentUrl = classId 
           ? `${API_BASE_URL}/teacher/students?class_id=${classId}` 
           : `${API_BASE_URL}/teacher/students`;
@@ -49,9 +48,10 @@ const ClassTeacherPanel = () => {
         const studentData = studentRes.ok ? await studentRes.json() : {};
         const examData = examRes.ok ? await examRes.json() : {};
 
-        console.log("Students loaded:", studentData); // Kuona kwenye Console kama wanakuja
+        console.log("Students Response:", studentData);
+        console.log("Exams Response:", examData);
 
-        const studentList = studentData.data || studentData.students || (Array.isArray(studentData) ? studentData : []);
+        const studentList = studentData.data || studentData.students || studentData.data?.students || (Array.isArray(studentData) ? studentData : []);
         const examList = examData.data || examData.exams || (Array.isArray(examData) ? examData : []);
 
         setStudents(Array.isArray(studentList) ? studentList : []);
