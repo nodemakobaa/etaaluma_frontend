@@ -369,7 +369,7 @@ const AcademicDashboard = () => {
                 </p>
               </div>
             </div>
-            {/* Subscription Management Card */}
+            {/* Subscription Management Card 
             <div
               onClick={() => navigate('/academic/subscription')}
               className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer space-y-3 group"
@@ -382,8 +382,15 @@ const AcademicDashboard = () => {
                 <p className="text-slate-500 text-xs mt-1">
                   Manage and configure subscription plans for the school.
                 </p>
-              </div>
+              </div> 
+            </div> */}
+            {/*Academic assign clas teacher*/}
+            <div>
+              onClick={() => navigate('/academic/assign-class-teacher')}
+              className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer space-y-3 group"
+            
             </div>
+            
         </div>
       </main>
 

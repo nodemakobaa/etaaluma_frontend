@@ -26,6 +26,7 @@ import StudentReport from './pages/StudentReport';
 import IsoSheetManagement from './pages/IsoSheetManagement';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SubscriptionManagement from './pages/SubscriptionManagement';
+import AssignClassTeacher from './pages/AssignClassTeacher';
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
             <Route path="/academic/student-report" element={<StudentReport />} /> 
             <Route path="/academic/iso-sheet-management" element={<IsoSheetManagement />} />
             <Route path="/academic/subscription" element={<SubscriptionManagement />} />
+            <Route path="/academic/assign-class-teacher" element={<AssignClassTeacher />} />
           </Route>
 
           {/* 2. Protected Routes for teacher */}

@@ -1,0 +1,190 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api';
+
+const AssignClassTeacher = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token') || '';
+
+  const [classes, setClasses] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [assignedList, setAssignedList] = useState([]);
+
+  const [selectedClassID, setSelectedClassID] = useState('');
+  const [selectedTeacherID, setSelectedTeacherID] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  // Vuta orodha ya Madarasa, Walimu, na waliokwisha kupangiwa
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [classRes, teacherRes, assignedRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/admin/classes`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_BASE_URL}/admin/teachers`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_BASE_URL}/admin/assigned-class-teachers`, { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+
+        const classData = await classRes.json();
+        const teacherData = await teacherRes.json();
+        const assignedData = await assignedRes.json();
+
+        setClasses(classData.data || classData || []);
+        setTeachers(teacherData.data || teacherData || []);
+        setAssignedList(assignedData.data || []);
+      } catch (err) {
+        console.error('Error loading data:', err);
+      }
+    };
+    fetchData();
+  }, [token]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedClassID || !selectedTeacherID) {
+      setMessage({ type: 'error', text: 'Tafadhali chagua Darasa na Mwalimu.' });
+      return;
+    }
+
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/assign-class-teacher`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          class_id: Number(selectedClassID),
+          teacher_id: Number(selectedTeacherID),
+        }),
+      });
+
+      const result = await res.json();
+      if (res.ok && result.status === 'success') {
+        setMessage({ type: 'success', text: result.message || 'Amepangiwa mafanikio makubwa!' });
+        // Refresh assigned list
+        const assignedRes = await fetch(`${API_BASE_URL}/admin/assigned-class-teachers`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const assignedData = await assignedRes.json();
+        setAssignedList(assignedData.data || []);
+        setSelectedClassID('');
+        setSelectedTeacherID('');
+      } else {
+        setMessage({ type: 'error', text: result.message || 'Imeshindikana kufanya uteuzi.' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Hitilafu ya mtandao!' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">🎓 Assign Class Teachers</h1>
+            <p className="text-xs text-slate-500 mt-0.5">Teua walimu wa kusimamia madarasa mahususi.</p>
+          </div>
+          <button
+            onClick={() => navigate('/academic-dashboard')}
+            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
+
+        {message.text && (
+          <div className={`p-4 rounded-xl text-xs font-semibold text-center border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+            {message.text}
+          </div>
+        )}
+
+        {/* Fomu ya Kuteua */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Chagua Darasa</label>
+              <select
+                value={selectedClassID}
+                onChange={(e) => setSelectedClassID(e.target.value)}
+                required
+                className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white"
+              >
+                <option value="">-- Chagua Darasa --</option>
+                {classes.map((cls) => (
+                  <option key={cls.id || cls.ID} value={cls.id || cls.ID}>
+                    {cls.class_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Chagua Mwalimu</label>
+              <select
+                value={selectedTeacherID}
+                onChange={(e) => setSelectedTeacherID(e.target.value)}
+                required
+                className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white"
+              >
+                <option value="">-- Chagua Mwalimu --</option>
+                {teachers.map((tch) => (
+                  <option key={tch.id || tch.ID} value={tch.id || tch.ID}>
+                    {tch.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition cursor-pointer disabled:opacity-50"
+            >
+              {loading ? 'Inahifadhi...' : 'Assign Class Teacher'}
+            </button>
+          </form>
+        </div>
+
+        {/* Orodha ya Walimu Waliochaguliwa na Madarasa Yao */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h3 className="text-base font-bold text-slate-800 mb-4">Current Class Teachers</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                  <th className="p-3">Na</th>
+                  <th className="p-3">Darasa</th>
+                  <th className="p-3">Mwalimu wa Darasa</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assignedList.length > 0 ? (
+                  assignedList.map((item, index) => (
+                    <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="p-3">{index + 1}</td>
+                      <td className="p-3 font-bold text-slate-800">{item.class_name}</td>
+                      <td className="p-3 font-semibold text-emerald-700">{item.teacher_name}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="p-6 text-center text-slate-400">Hakuna walimu waliopangiwa madarasa bado.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AssignClassTeacher;
