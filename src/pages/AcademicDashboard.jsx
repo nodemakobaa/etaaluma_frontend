@@ -385,10 +385,19 @@ const AcademicDashboard = () => {
               </div> 
             </div> */}
             {/*Academic assign clas teacher*/}
-            <div>
+            <div
               onClick={() => navigate('/academic/assign-class-teacher')}
               className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer space-y-3 group"
-            
+            >
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold text-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                📄
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-lg">Assign Class Teacher</h3>
+                <p className="text-slate-500 text-xs mt-1">
+                  Generate and view individual student academic reports.
+                </p>
+              </div>
             </div>
             
         </div>

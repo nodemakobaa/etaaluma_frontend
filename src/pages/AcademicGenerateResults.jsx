@@ -250,7 +250,7 @@ const AcademicGenerateResults = () => {
                     <th className="border border-slate-800 p-1.5">II</th>
                     <th className="border border-slate-800 p-1.5">III</th>
                     <th className="border border-slate-800 p-1.5">IV</th>
-                    <th className="border border-slate-800 p-1.5">FAIL</th>
+                    <th className="border border-slate-800 p-1.5">0</th>
                     <th className="border border-slate-800 p-1.5">INC</th>
                     <th className="border border-slate-800 p-1.5">ABS</th>
                     <th className="border border-slate-800 p-1.5">TOTAL</th>
