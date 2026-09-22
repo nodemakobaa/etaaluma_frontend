@@ -36,6 +36,7 @@ const ClassTeacherPanel = () => {
     const loadData = async () => {
       setLoading(true);
       try {
+        // Jaribu route ya admin students kwanza, kama ina class_id itachuja wanafunzi wa darasa hilo
         const studentUrl = classId 
           ? `${API_BASE_URL}/admin/students?class_id=${classId}` 
           : `${API_BASE_URL}/admin/students`;
@@ -48,7 +49,8 @@ const ClassTeacherPanel = () => {
         const studentData = studentRes.ok ? await studentRes.json() : {};
         const examData = examRes.ok ? await examRes.json() : {};
 
-        // Kinga thabiti dhidi ya muundo wowote wa API (inazuia blank page)
+        console.log("Students loaded:", studentData); // Kuona kwenye Console kama wanakuja
+
         const studentList = studentData.data || studentData.students || (Array.isArray(studentData) ? studentData : []);
         const examList = examData.data || examData.exams || (Array.isArray(examData) ? examData : []);
 
@@ -126,7 +128,9 @@ const ClassTeacherPanel = () => {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Select Student</label>
+              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
+                Select Student ({students.length} available)
+              </label>
               <select
                 value={selectedStudent}
                 onChange={(e) => setSelectedStudent(e.target.value)}
@@ -135,7 +139,7 @@ const ClassTeacherPanel = () => {
                 <option value="">-- Select Student --</option>
                 {students.map((std, idx) => (
                   <option key={std.id || std.ID || idx} value={std.id || std.ID}>
-                    {std.full_name || std.FullName} ({std.index_no || std.IndexNo || 'No Index'})
+                    {std.full_name || std.FullName} {std.index_no || std.IndexNo ? `(${std.index_no || std.IndexNo})` : ''}
                   </option>
                 ))}
               </select>
