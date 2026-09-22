@@ -6,18 +6,16 @@ import TeacherNotifications from './TeacherNotifications';
 const TeacherDashboard = () => {
   const navigate = useNavigate();
 
-  // Mode iliyochaguliwa ('enter_marks' au 'view_marks')
   const [activeAction, setActiveAction] = useState(null);
-
-  // States za User na Token
   const [user, setUser] = useState(null);
   const [token, setToken] = useState('');
 
-  // States za Data
   const [assignedSubjects, setAssignedSubjects] = useState([]);
   const [allExams, setAllExams] = useState([]);
+  
+  // State mpya kwa ajili ya Class Teacher
+  const [classTeacherInfo, setClassTeacherInfo] = useState({ is_class_teacher: false });
 
-  // Filter States
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedAssignmentKey, setSelectedAssignmentKey] = useState('');
@@ -26,7 +24,6 @@ const TeacherDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // 1. Load User & Token kutoka LocalStorage
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem('school_user');
@@ -48,7 +45,25 @@ const TeacherDashboard = () => {
     }
   }, [navigate]);
 
-  // Inafanya fetch pale tu mwalimu anapochagua Action (Enter au View Marks)
+  // Fetch Class Teacher status mara token inapopatikana
+  useEffect(() => {
+    if (!token) return;
+    const checkClassTeacher = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/teacher/class-info`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = res.ok ? await res.json() : {};
+        if (data.status === 'success') {
+          setClassTeacherInfo(data);
+        }
+      } catch (err) {
+        console.error('Failed to check class teacher status', err);
+      }
+    };
+    checkClassTeacher();
+  }, [token]);
+
   const handleSelectAction = (actionType) => {
     setActiveAction(actionType);
     setSelectedAssignmentKey('');
@@ -62,7 +77,6 @@ const TeacherDashboard = () => {
     setErrorMsg('');
 
     try {
-      // 1. Fetch Assigned Subjects (/api/v1/teacher/my-subjects)
       const subRes = await fetch(`${API_BASE_URL}/teacher/my-subjects`, {
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +84,6 @@ const TeacherDashboard = () => {
         },
       });
 
-      // 2. Fetch Exams (/api/v1/teacher/exams)
       const examRes = await fetch(`${API_BASE_URL}/teacher/exams`, {
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +108,6 @@ const TeacherDashboard = () => {
     }
   };
 
-  // Orodha ya Miaka na Miezi kwa ajili ya Filter
   const availableYears = [...new Set(allExams.map((e) => e.year?.toString()).filter(Boolean))];
   const availableMonths = [
     ...new Set(
@@ -106,7 +118,6 @@ const TeacherDashboard = () => {
     ),
   ];
 
-  // Chuja Mitihani kulingana na Year na Month
   const filteredExams = allExams.filter((exam) => {
     const matchYear = !selectedYear || exam.year?.toString() === selectedYear;
     const matchMonth = !selectedMonth || exam.month?.toLowerCase() === selectedMonth.toLowerCase();
@@ -148,12 +159,10 @@ const TeacherDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-8">
-      {/* Header Section with School Branding & System Title */}
+    <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans">
+      {/* Header Section */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          
-          {/* Left: School Logo & Details */}
           <div className="flex items-center space-x-4 w-full md:w-auto">
             {user?.school_logo ? (
               <img
@@ -171,35 +180,28 @@ const TeacherDashboard = () => {
               <h1 className="text-xl md:text-2xl font-black text-slate-800 uppercase tracking-tight">
                 {user?.school_name || 'SCHOOL NAME'}
               </h1>
-              
               <div className="mt-0.5 text-xs text-slate-500 font-medium">
                 <span className="text-emerald-600 font-bold uppercase tracking-wider">E-Taaluma System</span>
               </div>
-
               <p className="text-slate-600 text-sm mt-1.5">
                 Welcome back, <span className="font-bold text-slate-800">{user?.full_name || 'Teacher'}</span> 👋
+                {classTeacherInfo.is_class_teacher && (
+                  <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                    Class Teacher: {classTeacherInfo.class_name}
+                  </span>
+                )}
               </p>
             </div>
           </div>
 
-          {/* Right: Actions & Academic Badge */}
           <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
-            <div className="hidden sm:block text-right">
-              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-3 py-1 rounded-full block">
-                Academic Year: {new Date().getFullYear()}
-              </span>
-              <span className="text-[11px] text-slate-400 font-medium mt-1 block">Teacher Portal</span>
-            </div>
-
             <TeacherNotifications />
-
             <button
               onClick={() => navigate('/teacher/settings')}
               className="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
             >
               ⚙️ Account
             </button>
-
             <button
               onClick={handleLogout}
               className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
@@ -207,11 +209,10 @@ const TeacherDashboard = () => {
               🚪 <span>Logout</span>
             </button>
           </div>
-
         </div>
       </div>
 
-      {/* Main Action Buttons Grid */}
+      {/* Main Action Buttons Grid (Conditional Rendering based on Role) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
         <button
           onClick={() => handleSelectAction('enter_marks')}
@@ -249,12 +250,25 @@ const TeacherDashboard = () => {
           <span className="text-xl font-bold">→</span>
         </button>
 
-        <div className="p-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center text-slate-400 text-sm font-medium">
-          + More Actions Coming Soon
-        </div>
+        {/* Eneo Maalum la Mwalimu wa Darasa (Linaonekana kwa Mwalimu wa Darasa Pekee) */}
+        {classTeacherInfo.is_class_teacher && (
+          <button
+            onClick={() => navigate(`/teacher/class-panel?class_id=${classTeacherInfo.class_id}`)}
+            className="p-6 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between shadow-sm bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700"
+          >
+            <div>
+              <div className="text-2xl mb-2">🎓</div>
+              <h3 className="font-bold text-lg">Class Teacher Panel</h3>
+              <p className="text-xs mt-1 text-indigo-100">
+                Manage behaviors, remarks & student reports for {classTeacherInfo.class_name}
+              </p>
+            </div>
+            <span className="text-xl font-bold">→</span>
+          </button>
+        )}
       </div>
 
-      {/* Form Section */}
+      {/* Form Section ya Kuingiza/Kuangalia Alama */}
       {activeAction && (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6 transition-all">
           <div className="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -274,12 +288,11 @@ const TeacherDashboard = () => {
 
           {loading ? (
             <div className="py-8 text-center text-slate-400 font-medium text-sm">
-              Connecting to server and loading subjects...
+              Loading subjects and exams...
             </div>
           ) : (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Subject Selection */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                     Assigned Subject
@@ -301,7 +314,6 @@ const TeacherDashboard = () => {
                   </select>
                 </div>
 
-                {/* Filter Year */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                     Filter Year
@@ -317,14 +329,11 @@ const TeacherDashboard = () => {
                   >
                     <option value="">All Years</option>
                     {availableYears.map((yr) => (
-                      <option key={yr} value={yr}>
-                        {yr}
-                      </option>
+                      <option key={yr} value={yr}>{yr}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Filter Month */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                     Filter Month
@@ -339,9 +348,7 @@ const TeacherDashboard = () => {
                   >
                     <option value="">All Months</option>
                     {availableMonths.map((mth) => (
-                      <option key={mth} value={mth}>
-                        {mth}
-                      </option>
+                      <option key={mth} value={mth}>{mth}</option>
                     ))}
                   </select>
                 </div>
@@ -351,13 +358,9 @@ const TeacherDashboard = () => {
                 <div className={`rounded-xl border px-4 py-3 text-xs ${isSelectedExamClosed ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>
                   <div className="font-bold">{isSelectedExamClosed ? 'Marks Entry Closed' : 'Marks Entry Open'}</div>
                   <div className="mt-1">Deadline: {selectedExam.marks_entry_deadline ? new Date(selectedExam.marks_entry_deadline).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Not set'}</div>
-                  {isSelectedExamClosed && activeAction === 'enter_marks' && (
-                    <div className="mt-1 font-semibold">Time for entering this type of exam is already closed. Please go to VIEW MARKS to view marks for this type of exam.</div>
-                  )}
                 </div>
               )}
 
-              {/* Exam Selection & Action Button */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end pt-2">
                 <div className="md:col-span-2">
                   <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
@@ -369,17 +372,11 @@ const TeacherDashboard = () => {
                     className="w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     <option value="">-- Select Exam --</option>
-                    {filteredExams.length === 0 ? (
-                      <option disabled value="">
-                        No exams found for selected filters
+                    {filteredExams.map((ex) => (
+                      <option key={ex.id || ex.ID} value={ex.id || ex.ID}>
+                        {ex.exam_type} - {ex.month} {ex.year} ({ex.term || 'N/A'})
                       </option>
-                    ) : (
-                      filteredExams.map((ex) => (
-                        <option key={ex.id || ex.ID} value={ex.id || ex.ID}>
-                          {ex.exam_type} - {ex.month} {ex.year} ({ex.term || 'N/A'})
-                        </option>
-                      ))
-                    )}
+                    ))}
                   </select>
                 </div>
 
