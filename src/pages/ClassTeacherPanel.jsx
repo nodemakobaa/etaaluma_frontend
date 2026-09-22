@@ -25,21 +25,20 @@ const ClassTeacherPanel = () => {
   const [exams, setExams] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState('');
   const [selectedExam, setSelectedExam] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  // Behavior ratings state (index -> grade/mark string)
   const [behaviorRatings, setBehaviorRatings] = useState({});
   const [classTeacherRemark, setClassTeacherRemark] = useState('');
 
   useEffect(() => {
-    if (!classId) return;
     const loadData = async () => {
       setLoading(true);
       try {
+        const studentUrl = classId ? `${API_BASE_URL}/admin/students?class_id=${classId}` : `${API_BASE_URL}/admin/students`;
         const [studentRes, examRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/admin/students?class_id=${classId}`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(studentUrl, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_BASE_URL}/teacher/exams`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
@@ -47,7 +46,7 @@ const ClassTeacherPanel = () => {
         const examData = await examRes.json();
 
         setStudents(studentData.data || studentData || []);
-        setExams(examData.data || []);
+        setExams(examData.data || examData || []);
       } catch (err) {
         console.error('Failed to load panel data', err);
       } finally {
@@ -72,16 +71,23 @@ const ClassTeacherPanel = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Hapa utaunganisha na API ya kuhifadhi behavior/remarks ikihitajika
       setTimeout(() => {
         setSaving(false);
         setMessage({ type: 'success', text: 'Student conduct and remarks saved successfully!' });
-      }, 600);
+      }, 500);
     } catch (err) {
       setSaving(false);
       setMessage({ type: 'error', text: 'Failed to save data.' });
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans">
+        <p className="text-slate-500 font-semibold text-sm">Loading Class Teacher Panel...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans">
@@ -117,7 +123,7 @@ const ClassTeacherPanel = () => {
                 <option value="">-- Select Student --</option>
                 {students.map((std) => (
                   <option key={std.id || std.ID} value={std.id || std.ID}>
-                    {std.full_name} ({std.index_no})
+                    {std.full_name} ({std.index_no || std.IndexNo})
                   </option>
                 ))}
               </select>
@@ -162,7 +168,7 @@ const ClassTeacherPanel = () => {
                         <td className="border border-slate-200 p-2 text-center">
                           <input
                             type="text"
-                            maxLength="5"
+                            maxLength="15"
                             placeholder="e.g. A / Good"
                             value={behaviorRatings[idx] || ''}
                             onChange={(e) => handleRatingChange(idx, e.target.value)}

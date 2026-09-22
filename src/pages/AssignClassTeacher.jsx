@@ -15,26 +15,27 @@ const AssignClassTeacher = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  const fetchData = async () => {
+    try {
+      const [classRes, teacherRes, assignedRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/admin/classes`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/admin/teachers`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/admin/assigned-class-teachers`, { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+
+      const classData = await classRes.json();
+      const teacherData = await teacherRes.json();
+      const assignedData = await assignedRes.json();
+
+      setClasses(classData.data || classData || []);
+      setTeachers(teacherData.data || teacherData || []);
+      setAssignedList(assignedData.data || []);
+    } catch (err) {
+      console.error('Error loading data:', err);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [classRes, teacherRes, assignedRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/admin/classes`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`${API_BASE_URL}/admin/teachers`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`${API_BASE_URL}/admin/assigned-class-teachers`, { headers: { Authorization: `Bearer ${token}` } }),
-        ]);
-
-        const classData = await classRes.json();
-        const teacherData = await teacherRes.json();
-        const assignedData = await assignedRes.json();
-
-        setClasses(classData.data || classData || []);
-        setTeachers(teacherData.data || teacherData || []);
-        setAssignedList(assignedData.data || []);
-      } catch (err) {
-        console.error('Error loading data:', err);
-      }
-    };
     fetchData();
   }, [token]);
 
@@ -64,21 +65,33 @@ const AssignClassTeacher = () => {
       const result = await res.json();
       if (res.ok && result.status === 'success') {
         setMessage({ type: 'success', text: result.message || 'Class teacher assigned successfully!' });
-        
-        const assignedRes = await fetch(`${API_BASE_URL}/admin/assigned-class-teachers`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const assignedData = await assignedRes.json();
-        setAssignedList(assignedData.data || []);
-        setSelectedClassID('');
+        fetchData();
         setSelectedTeacherID('');
       } else {
         setMessage({ type: 'error', text: result.message || 'Failed to assign class teacher.' });
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Network error! Failed to connect to server.' });
+      setMessage({ type: 'error', text: 'Network error!' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUnassign = async (id) => {
+    if (!window.confirm('Are you sure you want to unassign this class teacher?')) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/assigned-class-teachers/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Class teacher unassigned successfully!' });
+        fetchData();
+      } else {
+        setMessage({ type: 'error', text: 'Failed to unassign.' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Network error during unassign.' });
     }
   };
 
@@ -88,7 +101,7 @@ const AssignClassTeacher = () => {
         <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
           <div>
             <h1 className="text-xl font-bold text-slate-800">🎓 Assign Class Teachers</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Designate teachers to manage specific class reports and student behavior.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Designate multiple teachers to manage specific classes.</p>
           </div>
           <button
             onClick={() => navigate('/academic-dashboard')}
@@ -145,7 +158,7 @@ const AssignClassTeacher = () => {
               disabled={loading}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition cursor-pointer disabled:opacity-50"
             >
-              {loading ? 'Saving...' : 'Assign Class Teacher'}
+              {loading ? 'Assigning...' : 'Assign Class Teacher'}
             </button>
           </form>
         </div>
@@ -159,6 +172,7 @@ const AssignClassTeacher = () => {
                   <th className="p-3">No</th>
                   <th className="p-3">Class Name</th>
                   <th className="p-3">Class Teacher</th>
+                  <th className="p-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -168,11 +182,19 @@ const AssignClassTeacher = () => {
                       <td className="p-3">{index + 1}</td>
                       <td className="p-3 font-bold text-slate-800">{item.class_name}</td>
                       <td className="p-3 font-semibold text-emerald-700">{item.teacher_name}</td>
+                      <td className="p-3 text-right">
+                        <button
+                          onClick={() => handleUnassign(item.id)}
+                          className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg transition cursor-pointer"
+                        >
+                          Unassign
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="3" className="p-6 text-center text-slate-400">No class teachers assigned yet.</td>
+                    <td colSpan="4" className="p-6 text-center text-slate-400">No class teachers assigned yet.</td>
                   </tr>
                 )}
               </tbody>
