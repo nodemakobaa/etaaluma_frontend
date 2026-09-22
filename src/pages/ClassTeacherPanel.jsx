@@ -36,10 +36,10 @@ const ClassTeacherPanel = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        // Jaribu route ya admin students kwanza, kama ina class_id itachuja wanafunzi wa darasa hilo
+        //Class_id itachuja wanafunzi wa darasa hilo
         const studentUrl = classId 
-          ? `${API_BASE_URL}/admin/students?class_id=${classId}` 
-          : `${API_BASE_URL}/admin/students`;
+          ? `${API_BASE_URL}/teacher/students?class_id=${classId}` 
+          : `${API_BASE_URL}/teacher/students`;
 
         const [studentRes, examRes] = await Promise.all([
           fetch(studentUrl, { headers: { Authorization: `Bearer ${token}` } }),
