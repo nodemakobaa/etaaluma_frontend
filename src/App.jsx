@@ -27,6 +27,7 @@ import IsoSheetManagement from './pages/IsoSheetManagement';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SubscriptionManagement from './pages/SubscriptionManagement';
 import AssignClassTeacher from './pages/AssignClassTeacher';
+import ClassTeacherPanel from './pages/ClassTeacherPanel';
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
             <Route path="/teacher/enter-marks" element={<EnterMarksPage />} />
             <Route path="/teacher/view-marks" element={<ViewMarks />} />
             <Route path="/teacher/settings" element={<TeacherSettings />} />
+            <Route path="/teacher/class-panel" element={<ClassTeacherPanel />} />
           </Route>
 
         </Routes>
