@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { API_BASE_URL } from '../config/api';
 
-const behaviorsList = [
-  "Hardworking and knowledgeable",
-  "Independence and quality of work done",
-  "Appreciation and respect for work",
-  "Care for public property",
-  "Cooperation and teamwork",
-  "Respect for elders, teachers, and peers",
-  "Leadership and positive influence on others",
-  "Personal hygiene",
-  "Honesty and integrity",
-  "Participation in sports and cultural activities"
+const swahiliBehaviorsList = [
+  "Kufanya kazi kwa bidii na maarifa",
+  "Uhuru na kiasi cha kazi aliyoifanya",
+  "Kupenda kuthamini na kuheshimu kazi",
+  "Uangalifu wa mali ya umma",
+  "Uelewano na ushirikiano",
+  "Heshima kwa wazee, walimu na wanafunzi wengine",
+  "Wenzake kufuata ushauri wake na kuvutiwa naye",
+  "Usafi binafsi",
+  "Uaminifu",
+  "Kushiriki katika michezo na shughuli za utamaduni"
 ];
 
 const ClassTeacherPanel = () => {
@@ -48,9 +48,6 @@ const ClassTeacherPanel = () => {
         const studentData = studentRes.ok ? await studentRes.json() : {};
         const examData = examRes.ok ? await examRes.json() : {};
 
-        console.log("Students Response:", studentData);
-        console.log("Exams Response:", examData);
-
         const studentList = studentData.data || studentData.students || studentData.data?.students || (Array.isArray(studentData) ? studentData : []);
         const examList = examData.data || examData.exams || (Array.isArray(examData) ? examData : []);
 
@@ -74,7 +71,7 @@ const ClassTeacherPanel = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!selectedStudent || !selectedExam) {
-      setMessage({ type: 'error', text: 'Please select both a Student and an Examination.' });
+      setMessage({ type: 'error', text: 'Tafadhali chagua Mwanafunzi na Mtihani.' });
       return;
     }
 
@@ -84,11 +81,11 @@ const ClassTeacherPanel = () => {
     try {
       setTimeout(() => {
         setSaving(false);
-        setMessage({ type: 'success', text: 'Student conduct and remarks saved successfully!' });
+        setMessage({ type: 'success', text: 'Taarifa za tabia na maoni zimehifadhiwa mafanikio makubwa!' });
       }, 500);
     } catch (err) {
       setSaving(false);
-      setMessage({ type: 'error', text: 'Failed to save data.' });
+      setMessage({ type: 'error', text: 'Imeshindikana kuhifadhi taarifa.' });
     }
   };
 
@@ -97,7 +94,7 @@ const ClassTeacherPanel = () => {
       <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans">
         <div className="text-center space-y-2">
           <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-600 font-semibold text-xs">Loading Class Teacher Panel...</p>
+          <p className="text-600 font-semibold text-xs">Inapakia Jopo la Mwalimu wa Darasa...</p>
         </div>
       </div>
     );
@@ -108,14 +105,14 @@ const ClassTeacherPanel = () => {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
           <div>
-            <h1 className="text-xl font-bold text-slate-800">🎓 Class Teacher Panel</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Manage student behavior ratings and class teacher remarks.</p>
+            <h1 className="text-xl font-bold text-slate-800">🎓 Jopo la Mwalimu wa Darasa</h1>
+            <p className="text-xs text-slate-500 mt-0.5">Simamia alama za tabia na maoni ya mwalimu wa darasa kwa wanafunzi.</p>
           </div>
           <button
             onClick={() => navigate('/teacher-dashboard')}
             className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
           >
-            ← Back to Dashboard
+            ← Rudi kwenye Dashibodi
           </button>
         </div>
 
@@ -129,14 +126,14 @@ const ClassTeacherPanel = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                Select Student ({students.length} available)
+                Chagua Mwanafunzi ({students.length} wapo)
               </label>
               <select
                 value={selectedStudent}
                 onChange={(e) => setSelectedStudent(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white"
               >
-                <option value="">-- Select Student --</option>
+                <option value="">-- Chagua Mwanafunzi --</option>
                 {students.map((std, idx) => (
                   <option key={std.id || std.ID || idx} value={std.id || std.ID}>
                     {std.full_name || std.FullName} {std.index_no || std.IndexNo ? `(${std.index_no || std.IndexNo})` : ''}
@@ -146,13 +143,13 @@ const ClassTeacherPanel = () => {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Select Examination / Term</label>
+              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Chagua Mtihani / Muhula</label>
               <select
                 value={selectedExam}
                 onChange={(e) => setSelectedExam(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white"
               >
-                <option value="">-- Select Examination --</option>
+                <option value="">-- Chagua Mtihani --</option>
                 {exams.map((ex, idx) => (
                   <option key={ex.id || ex.ID || idx} value={ex.id || ex.ID}>
                     {ex.exam_type || ex.ExamType} - {ex.month || ex.Month} {ex.year || ex.Year} ({ex.term || ex.Term})
@@ -166,29 +163,29 @@ const ClassTeacherPanel = () => {
         {selectedStudent && selectedExam && (
           <form onSubmit={handleSave} className="space-y-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-              <h3 className="font-bold text-slate-800 text-sm">B: Behavior, Work & General Progress Evaluation</h3>
+              <h3 className="font-bold text-slate-800 text-sm">B: UPIMAJI WA TABIA, KAZI NA MAENDELEO YAKE</h3>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse border border-slate-200 text-xs">
                   <thead>
                     <tr className="bg-slate-50 text-slate-700">
-                      <th className="border border-slate-200 p-2.5 w-12 text-center">No</th>
-                      <th className="border border-slate-200 p-2.5 text-left">Behavior / Character Trait</th>
-                      <th className="border border-slate-200 p-2.5 w-40 text-center">Grade / Mark</th>
+                      <th className="border border-slate-200 p-2.5 w-12 text-center">Na</th>
+                      <th className="border border-slate-200 p-2.5 text-left">MAELEZO</th>
+                      <th className="border border-slate-200 p-2.5 w-32 text-center">ALAMA / DARAJA</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {behaviorsList.map((trait, idx) => (
+                    {swahiliBehaviorsList.map((trait, idx) => (
                       <tr key={idx} className="hover:bg-slate-50">
                         <td className="border border-slate-200 p-2 text-center">{idx + 1}</td>
                         <td className="border border-slate-200 p-2 font-medium text-slate-800">{trait}</td>
                         <td className="border border-slate-200 p-2 text-center">
                           <input
                             type="text"
-                            maxLength="15"
-                            placeholder="e.g. A / Good"
+                            maxLength="5"
+                            placeholder="A, B..."
                             value={behaviorRatings[idx] || ''}
-                            onChange={(e) => handleRatingChange(idx, e.target.value)}
-                            className="w-full px-2 py-1 border border-slate-300 rounded text-center text-xs font-semibold"
+                            onChange={(e) => handleRatingChange(idx, e.target.value.toUpperCase())}
+                            className="w-20 px-2 py-1 border border-slate-300 rounded text-center text-xs font-bold uppercase tracking-wider"
                           />
                         </td>
                       </tr>
@@ -198,10 +195,10 @@ const ClassTeacherPanel = () => {
               </div>
 
               <div className="pt-4 space-y-2">
-                <label className="block text-xs font-bold text-slate-700">Class Teacher's General Remarks:</label>
+                <label className="block text-xs font-bold text-slate-700">Maoni ya Mwalimu wa Darasa:</label>
                 <textarea
                   rows="3"
-                  placeholder="Enter remarks about student's overall performance, character, and recommendations..."
+                  placeholder="Andika maoni yako kuhusu mwenendo, tabia na maendeleo ya jumla ya mwanafunzi..."
                   value={classTeacherRemark}
                   onChange={(e) => setClassTeacherRemark(e.target.value)}
                   className="w-full p-3 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -214,7 +211,7 @@ const ClassTeacherPanel = () => {
                   disabled={saving}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-xs transition cursor-pointer disabled:opacity-50"
                 >
-                  {saving ? 'Saving Records...' : 'Save Student Conduct & Remarks'}
+                  {saving ? 'Inahifadhi...' : 'Hifadhi Alama na Maoni ya Mwanafunzi'}
                 </button>
               </div>
             </div>
