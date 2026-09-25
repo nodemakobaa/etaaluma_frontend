@@ -354,7 +354,9 @@ const AcademicGenerateResults = () => {
                         )}
 
                         <td className="border border-slate-800 p-1 font-bold">{st.points}</td>
-                        <td className="border border-slate-800 p-1 font-extrabold">{st.division}</td>
+                        <td className="border border-slate-800 p-1 font-extrabold">
+                           {st.division === 'FAIL' ? '0' : st.division}
+                        </td>
                         <td className="border border-slate-800 p-1 text-left font-mono text-[11px]">
                           {st.details}
                         </td>
