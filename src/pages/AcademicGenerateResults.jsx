@@ -269,7 +269,7 @@ const AcademicGenerateResults = () => {
                         <td className="border border-slate-800 p-1">{row.ii || 0}</td>
                         <td className="border border-slate-800 p-1">{row.iii || 0}</td>
                         <td className="border border-slate-800 p-1">{row.iv || 0}</td>
-                        <td className="border border-slate-800 p-1">{row.fail || 0}</td>
+                        <td className="border border-slate-800 p-1">{row[0] || row.fail || 0}</td>
                         <td className="border border-slate-800 p-1">{row.inc || 0}</td>
                         <td className="border border-slate-800 p-1">{row.abs || 0}</td>
                         <td className="border border-slate-800 p-1 font-bold">{row.total || 0}</td>
@@ -294,7 +294,7 @@ const AcademicGenerateResults = () => {
                       {(reportData.division_summary.F?.iv || 0) + (reportData.division_summary.M?.iv || 0)}
                     </td>
                     <td className="border border-slate-800 p-1">
-                      {(reportData.division_summary.F?.fail || 0) + (reportData.division_summary.M?.fail || 0)}
+                      {((reportData.division_summary.F?.[0] ?? reportData.division_summary.F?.fail) || 0) + ((reportData.division_summary.M?.[0] ?? reportData.division_summary.M?.fail) || 0)}
                     </td>
                     <td className="border border-slate-800 p-1">
                       {(reportData.division_summary.F?.inc || 0) + (reportData.division_summary.M?.inc || 0)}
@@ -323,7 +323,6 @@ const AcademicGenerateResults = () => {
                       <th className="border border-slate-800 p-1.5 text-left min-w-[180px]">STUDENT NAME</th>
                       <th className="border border-slate-800 p-1.5 w-12">SEX</th>
 
-                      {/* AVG & POS zitaonekana pale tu viewType inapokuwa 'rank' */}
                       {viewType === 'rank' && (
                         <>
                           <th className="border border-slate-800 p-1.5 w-16">AVG</th>
@@ -343,7 +342,6 @@ const AcademicGenerateResults = () => {
                         <td className="border border-slate-800 p-1 text-left font-bold">{st.full_name}</td>
                         <td className="border border-slate-800 p-1">{st.gender}</td>
 
-                        {/* Render AVG & POS columns tu under Rank mode */}
                         {viewType === 'rank' && (
                           <>
                             <td className="border border-slate-800 p-1 font-bold">
@@ -391,7 +389,6 @@ const AcademicGenerateResults = () => {
                     {reportData.subject_stats.map((sub, idx) => (
                       <tr key={idx}>
                         <td className="border border-slate-800 p-1 text-left font-bold">{sub.name}</td>
-                        {/* HAPA: Tunasoma subject_code halisi (mfano 041, 011) badala ya short name */}
                         <td className="border border-slate-800 p-1 font-mono font-bold">
                           {sub.subject_code || sub.code}
                         </td>
