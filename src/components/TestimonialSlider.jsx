@@ -1,27 +1,15 @@
 import { useState, useEffect } from 'react';
 
 const testimonials = [
+
   {
     id: 1,
-    schoolName: "Mwandet Secondary School",
-    logo: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=150&auto=format&fit=crop&q=80",
-    message: "E-Taaluma has helped us streamline academic report publishing each term without errors. The system is remarkably fast!",
-    location: "Arusha, Tanzania"
-  },
-  {
-    id: 2,
     schoolName: "Mpwayungu Secondary School",
     logo: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=150&auto=format&fit=crop&q=80",
     message: "E-Taaluma has improved our academic reporting process significantly. It's both accurate and efficient.",
     location: "Dodoma, Tanzania"
   },
-  {
-    id: 3,
-    schoolName: "St. Joseph Secondary School",
-    logo: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=150&auto=format&fit=crop&q=80",
-    message: "The interface is very easy to use, allowing fast entry for Mid-Term and Terminal examination results.",
-    location: "Tanzania"
-  }
+
 ];
 
 const TestimonialSlider = () => {

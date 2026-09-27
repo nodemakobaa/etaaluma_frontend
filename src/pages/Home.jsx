@@ -100,6 +100,8 @@ const Home = () => {
                 </svg>
               </Link>
             </div>
+            {/* for primary school, this is your link*/}
+            
           </div>
         </section>
 
