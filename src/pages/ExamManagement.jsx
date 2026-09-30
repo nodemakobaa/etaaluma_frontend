@@ -8,7 +8,7 @@ const monthsList = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-const examTypes = ['Monthly Test', 'Mid-Term', 'Terminal', 'Annual'];
+const examTypes = ['Test', 'Monthly Test', 'Mid-Term', 'Terminal', 'Mock', 'Pre-Mock', 'Pre-necta', 'Annual'];
 const terms = ['First Term', 'Second Term'];
 
 const toLocalDateTimeInput = (date) => {
