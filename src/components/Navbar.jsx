@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import logoImage from '../assets/logo.png'; 
 
 const Navbar = () => {
   const location = useLocation();
@@ -22,9 +23,15 @@ const Navbar = () => {
   return (
     <nav className="bg-slate-900 text-white py-4 px-6 md:px-8 flex justify-between items-center shadow-md sticky top-0 z-50">
       {/* Brand Logo / Home Link */}
-      <Link to="/" className="flex items-center space-x-2 text-xl font-bold tracking-wide">
-        <span className="text-2xl">🏫</span>
-        <span>E-Taaluma</span>
+      <Link to="/" className="flex items-center space-x-3 text-xl font-bold tracking-wide">
+        <img 
+          src={logoImage} 
+          alt="E-Taaluma Logo" 
+          className="w-10 h-10 rounded-full object-cover border-2 border-orange-500 shadow-sm" 
+        />
+        <span className="text-xl">
+          E-<span className="text-emerald-500">Taaluma</span>
+        </span>
       </Link>
 
       {/* Desktop Navigation Links */}
