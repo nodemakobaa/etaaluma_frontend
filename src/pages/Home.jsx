@@ -100,20 +100,20 @@ const Home = () => {
                 </svg>
               </Link>
             </div>
-            {/* for primary school, this is your link*/}
-            <div className="mt-3">
-              <a
-                href="https://front-end-for-primary.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-semibold text-emerald-600 hover:text-emerald-500 underline inline-flex items-center gap-1"
-              >
-                <span>For Primary School </span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
-            </div>
+          {/* for primary school, this is your link */}
+          <div className="mt-4">
+            <a
+              href="https://front-end-for-primary.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-emerald-600 transition-all bg-white border-2 border-emerald-600 rounded-lg shadow-sm hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 gap-2"
+            >
+              <span>Register Primary School</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
           </div>
         </section>
 
