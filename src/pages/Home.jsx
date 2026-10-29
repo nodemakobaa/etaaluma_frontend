@@ -108,7 +108,7 @@ const Home = () => {
                 rel="noopener noreferrer"
                 className="text-sm font-semibold text-emerald-600 hover:text-emerald-500 underline inline-flex items-center gap-1"
               >
-                <span>Switch to Primary School System</span>
+                <span>For Primary School </span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
@@ -181,7 +181,7 @@ const Home = () => {
             <div className="space-y-3 text-sm md:text-base text-slate-600">
               <div className="flex items-start gap-3">
                 <span className="font-semibold text-slate-700 min-w-[70px]">Phone:</span>
-                <span className="text-emerald-700 font-medium">+255 752 488 857 / +255 621 498 397</span>
+                <span className="text-emerald-700 font-medium">+255 752 488 857 / +255 621 498 397 /+255 678 991 126</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="font-semibold text-slate-700 min-w-[70px]">Email:</span>
