@@ -103,7 +103,7 @@ const Home = () => {
           {/* for primary school, this is your link */}
           <div className="mt-4">
             <a
-              href="https://front-end-for-primary.vercel.app/"
+              href="https://etaalumaprimary.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-white transition-all bg-emerald-600 rounded-lg shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 gap-2"
