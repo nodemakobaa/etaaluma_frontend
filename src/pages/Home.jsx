@@ -108,7 +108,7 @@ const Home = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-white transition-all bg-emerald-600 rounded-lg shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 gap-2"
             >
-              <span>Register Primary School Now</span>
+              <span>For Primary School Click Here</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
