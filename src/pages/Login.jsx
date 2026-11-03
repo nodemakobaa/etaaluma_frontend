@@ -26,7 +26,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ const Login = () => {
 
     try {
       // Ongeza /v1 kwenye url ili iendane na backend routes zako
-      const response = await fetch(`${API_BASE_URL}/v1/auth/forgot-password`, {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
