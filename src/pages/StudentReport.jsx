@@ -263,7 +263,6 @@ const StudentReport = () => {
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 sm:p-6 print:bg-white print:p-0 print:min-h-0">
-      {/* Strict CSS rules for A4 Single Page Print layout */}
       <style>{`
         @media print {
           @page {
@@ -295,7 +294,6 @@ const StudentReport = () => {
       `}</style>
 
       <div className="max-w-7xl mx-auto space-y-6 print:max-w-none print:space-y-0 print:m-0">
-        {/* Navigation & Actions */}
         <div className="flex items-center justify-between print:hidden font-sans">
           <Link to="/academic-dashboard" className="text-sm font-bold text-slate-600 hover:text-emerald-600 flex items-center gap-1">
             ← Back to Dashboard
@@ -310,7 +308,6 @@ const StudentReport = () => {
           )}
         </div>
 
-        {/* Filter Card */}
         <section className="bg-slate-50 border border-slate-200 rounded-xl shadow-sm p-5 print:hidden font-sans">
           <div className="mb-4 border-b border-slate-200 pb-3">
             <h1 className="text-base font-bold text-slate-800 flex items-center gap-2">
@@ -384,7 +381,6 @@ const StudentReport = () => {
           </form>
         </section>
 
-        {/* Progress Chart Action */}
         {reports.length > 0 && selectedStudent !== 'all' && (
           <section className="print:hidden font-sans">
             <div className="flex justify-end mb-3">
@@ -400,13 +396,11 @@ const StudentReport = () => {
           </section>
         )}
 
-        {/* Printable Official Swahili Single-Page Report Forms */}
         {reports.length > 0 ? reports.map((report) => (
           <article 
             key={report.id} 
             className="report-page w-[200mm] mx-auto bg-white border border-black p-4 box-border shadow-sm print:shadow-none print:border-none print:p-0 text-black text-[11px] leading-tight font-serif overflow-hidden"
           >
-            {/* Header section with school logo */}
             <header className="flex justify-between items-center mb-1">
               <div className="w-[60px]" />
               <div className="text-center flex-1 leading-tight">
@@ -502,15 +496,16 @@ const StudentReport = () => {
               </tbody>
             </table>
 
+            {/* SEHEMU ILIYOBADILISHWA KUONYESHA NAFASI KATI YA TOTAL */}
             <div className="border border-black p-0.5 my-0.5 text-[9.5px] bg-gray-50 font-sans">
               <div className="grid grid-cols-3 text-center font-bold">
                 <div>DIVISION: {report.division}</div>
                 <div>POINTS: {report.points}</div>
                 <div>
                   NAFASI DARASANI: {
-                    report.position_str || 
-                    (report.position && report.total_students ? `${report.position} / ${report.total_students}` : report.position) || 
-                    (report.rank ? `${report.rank} / ${report.total_students || '-'}` : '-')
+                    report.position && report.total_students 
+                      ? `${report.position} / ${report.total_students}` 
+                      : report.position || '-'
                   }
                 </div>
               </div>
@@ -536,7 +531,6 @@ const StudentReport = () => {
               Namba ya Simu: ...........................................
             </p>
 
-            {/* Swahili Math Advice Block to Parents */}
             {report.math_comment && (
               <div 
                 className="border border-slate-400 bg-slate-50 p-1 mt-0.5 rounded text-[9.5px] leading-snug font-sans"
