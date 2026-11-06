@@ -502,12 +502,12 @@ const StudentReport = () => {
                 <div>DIVISION: {report.division}</div>
                 <div>POINTS: {report.points}</div>
                 <div>
-                  NAFASI DARASANI: {
-                    report.position && report.total_students 
-                      ? `${report.position} / ${report.total_students}` 
-                      : report.position || '-'
-                  }
-                </div>
+                    NAFASI DARASANI: {
+                      report.position && report.total_students 
+                        ? `${report.position} kati ya ${report.total_students}` 
+                        : report.position || '-'
+                    }
+                  </div>
               </div>
             </div>
 
