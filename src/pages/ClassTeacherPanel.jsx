@@ -23,15 +23,20 @@ const ClassTeacherPanel = () => {
 
   const [students, setStudents] = useState([]);
   const [exams, setExams] = useState([]);
+  const [evaluatedStudentIds, setEvaluatedStudentIds] = useState([]);
+  
   const [selectedStudent, setSelectedStudent] = useState('');
   const [selectedExam, setSelectedExam] = useState('');
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [showEvaluatedList, setShowEvaluatedList] = useState(false);
 
   const [behaviorRatings, setBehaviorRatings] = useState({});
   const [classTeacherRemark, setClassTeacherRemark] = useState('');
 
+  // 1. Kupakua Wanafunzi na Mitihani
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -48,21 +53,71 @@ const ClassTeacherPanel = () => {
         const studentData = studentRes.ok ? await studentRes.json() : {};
         const examData = examRes.ok ? await examRes.json() : {};
 
-        const studentList = studentData.data || studentData.students || studentData.data?.students || (Array.isArray(studentData) ? studentData : []);
-        const examList = examData.data || examData.exams || (Array.isArray(examData) ? examData : []);
-
-        setStudents(Array.isArray(studentList) ? studentList : []);
-        setExams(Array.isArray(examList) ? examList : []);
+        setStudents(studentData.data || studentData.students || []);
+        setExams(examData.data || examData.exams || []);
       } catch (err) {
         console.error('Failed to load panel data', err);
-        setStudents([]);
-        setExams([]);
       } finally {
         setLoading(false);
       }
     };
     loadData();
   }, [classId, token]);
+
+  // 2. Kupakua orodha ya waliokwishajaziwa pindi Exam inapochaguliwa
+  useEffect(() => {
+    if (!selectedExam) {
+      setEvaluatedStudentIds([]);
+      return;
+    }
+    const fetchEvaluated = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/teacher/evaluated-students?exam_id=${selectedExam}&class_id=${classId || ''}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          const evaluatedIds = (data.data || []).map(item => item.StudentID || item.student_id);
+          setEvaluatedStudentIds(evaluatedIds);
+        }
+      } catch (err) {
+        console.error("Error fetching evaluated students", err);
+      }
+    };
+    fetchEvaluated();
+  }, [selectedExam, classId, token]);
+
+  // 3. Kupakua data za mwanafunzi aliyechaguliwa (Kama tayari alijazwa, zimlete ili afanye Edit)
+  useEffect(() => {
+    if (!selectedStudent || !selectedExam) {
+      setBehaviorRatings({});
+      setClassTeacherRemark('');
+      return;
+    }
+
+    const fetchStudentBehavior = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/teacher/behavior?student_id=${selectedStudent}&exam_id=${selectedExam}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.data) {
+          try {
+            setBehaviorRatings(JSON.parse(data.data.Ratings || data.data.ratings || '{}'));
+          } catch {
+            setBehaviorRatings({});
+          }
+          setClassTeacherRemark(data.data.ClassTeacherRemark || data.data.class_teacher_remark || '');
+        } else {
+          setBehaviorRatings({});
+          setClassTeacherRemark('');
+        }
+      } catch (err) {
+        console.error("Failed to fetch specific student behavior", err);
+      }
+    };
+    fetchStudentBehavior();
+  }, [selectedStudent, selectedExam, token]);
 
   const handleRatingChange = (index, value) => {
     setBehaviorRatings(prev => ({ ...prev, [index]: value }));
@@ -79,22 +134,49 @@ const ClassTeacherPanel = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      setTimeout(() => {
-        setSaving(false);
+      const res = await fetch(`${API_BASE_URL}/teacher/behavior`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          student_id: Number(selectedStudent),
+          exam_id: Number(selectedExam),
+          ratings: JSON.stringify(behaviorRatings),
+          class_teacher_remark: classTeacherRemark
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
         setMessage({ type: 'success', text: 'Taarifa za tabia na maoni zimehifadhiwa mafanikio makubwa!' });
-      }, 500);
+        // Ongeza kwenye evaluated list papo hapo ili atoweke kwenye dropdown ya waliobakia
+        if (!evaluatedStudentIds.includes(Number(selectedStudent))) {
+          setEvaluatedStudentIds([...evaluatedStudentIds, Number(selectedStudent)]);
+        }
+      } else {
+        throw new Error(data.message || 'Imeshindikana kuhifadhi.');
+      }
     } catch (err) {
+      setMessage({ type: 'error', text: err.message || 'Imeshindikana kuhifadhi taarifa.' });
+    } finally {
       setSaving(false);
-      setMessage({ type: 'error', text: 'Imeshindikana kuhifadhi taarifa.' });
     }
   };
+
+  // Kuchuja wanafunzi ambao bado hawajajazwa (isipokuwa yule ambaye yuko selected kwa sasa kwa ajili ya ku-edit)
+  const availableStudents = students.filter(std => {
+    const id = std.id || std.ID;
+    return !evaluatedStudentIds.includes(id) || String(id) === String(selectedStudent);
+  });
 
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans">
         <div className="text-center space-y-2">
           <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-600 font-semibold text-xs">Inapakia Jopo la Mwalimu wa Darasa...</p>
+          <p className="text-slate-600 font-semibold text-xs">Inapakia Jopo la Mwalimu wa Darasa...</p>
         </div>
       </div>
     );
@@ -108,13 +190,42 @@ const ClassTeacherPanel = () => {
             <h1 className="text-xl font-bold text-slate-800">🎓 Jopo la Mwalimu wa Darasa</h1>
             <p className="text-xs text-slate-500 mt-0.5">Simamia alama za tabia na maoni ya mwalimu wa darasa kwa wanafunzi.</p>
           </div>
-          <button
-            onClick={() => navigate('/teacher-dashboard')}
-            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
-          >
-            ← Rudi kwenye Dashibodi
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowEvaluatedList(!showEvaluatedList)}
+              className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition cursor-pointer"
+            >
+              {showEvaluatedList ? 'Ficha Waliokwishajazwa' : `Waliokwishajazwa (${evaluatedStudentIds.length})`}
+            </button>
+            <button
+              onClick={() => navigate('/teacher-dashboard')}
+              className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
+            >
+              ← Rudi
+            </button>
+          </div>
         </div>
+
+        {showEvaluatedList && (
+          <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-2xl text-xs space-y-2">
+            <h4 className="font-bold text-indigo-900">Wanafunzi waliokwishajazwa tabia kwenye mtihani huu (Bofya ili Kuedit):</h4>
+            <div className="flex flex-wrap gap-2">
+              {evaluatedStudentIds.length === 0 ? (hakunaWaliokwishajazwaText => <p className="text-slate-500">Hakuna mwanafunzi aliyejazwa bado.</p>)() : null}
+              {evaluatedStudentIds.map(id => {
+                const std = students.find(s => (s.id || s.ID) === id);
+                return std ? (
+                  <button
+                    key={id}
+                    onClick={() => { setSelectedStudent(String(id)); setShowEvaluatedList(false); }}
+                    className="px-3 py-1.5 bg-white border border-indigo-300 text-indigo-700 rounded-lg font-semibold hover:bg-indigo-600 hover:text-white transition shadow-xs"
+                  >
+                    {std.full_name || std.FullName}
+                  </button>
+                ) : null;
+              })}
+            </div>
+          </div>
+        )}
 
         {message.text && (
           <div className={`p-4 rounded-xl text-xs font-semibold text-center border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
@@ -126,35 +237,42 @@ const ClassTeacherPanel = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                Chagua Mwanafunzi ({students.length} wapo)
+                Chagua Mtihani / Muhula (Lazima)
               </label>
               <select
-                value={selectedStudent}
-                onChange={(e) => setSelectedStudent(e.target.value)}
+                value={selectedExam}
+                onChange={(e) => { setSelectedExam(e.target.value); setSelectedStudent(''); }}
                 className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white"
               >
-                <option value="">-- Chagua Mwanafunzi --</option>
-                {students.map((std, idx) => (
-                  <option key={std.id || std.ID || idx} value={std.id || std.ID}>
-                    {std.full_name || std.FullName} {std.index_no || std.IndexNo ? `(${std.index_no || std.IndexNo})` : ''}
+                <option value="">-- Chagua Mtihani Kwanza --</option>
+                {exams.map((ex, idx) => (
+                  <option key={ex.id || ex.ID || idx} value={ex.id || ex.ID}>
+                    {ex.exam_type || ex.ExamType} - {ex.month || ex.Month} {ex.year || ex.Year} ({ex.term || ex.Term})
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Chagua Mtihani / Muhula</label>
+              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
+                Chagua Mwanafunzi ({availableStudents.length} wamebaki)
+              </label>
               <select
-                value={selectedExam}
-                onChange={(e) => setSelectedExam(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white"
+                value={selectedStudent}
+                onChange={(e) => setSelectedStudent(e.target.value)}
+                disabled={!selectedExam}
+                className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-slate-300 bg-white disabled:bg-slate-100"
               >
-                <option value="">-- Chagua Mtihani --</option>
-                {exams.map((ex, idx) => (
-                  <option key={ex.id || ex.ID || idx} value={ex.id || ex.ID}>
-                    {ex.exam_type || ex.ExamType} - {ex.month || ex.Month} {ex.year || ex.Year} ({ex.term || ex.Term})
-                  </option>
-                ))}
+                <option value="">-- Chagua Mwanafunzi --</option>
+                {availableStudents.map((std, idx) => {
+                  const id = std.id || std.ID;
+                  const isAlreadyDone = evaluatedStudentIds.includes(id);
+                  return (
+                    <option key={id || idx} value={id}>
+                      {std.full_name || std.FullName} {isAlreadyDone ? ' (Tayari imejazwa - Inahaririwa)' : ''}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           </div>
@@ -211,7 +329,7 @@ const ClassTeacherPanel = () => {
                   disabled={saving}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-xs transition cursor-pointer disabled:opacity-50"
                 >
-                  {saving ? 'Inahifadhi...' : 'Hifadhi Alama na Maoni ya Mwanafunzi'}
+                  {saving ? 'Inahifadhi...' : 'Hifadhi / Sasisha Alama na Maoni'}
                 </button>
               </div>
             </div>
