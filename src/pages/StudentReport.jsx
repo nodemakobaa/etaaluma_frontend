@@ -501,11 +501,19 @@ const StudentReport = () => {
               <div className="grid grid-cols-3 text-center font-bold">
                 <div>DIVISION: {report.division}</div>
                 <div>POINTS: {report.points}</div>
-                <div>
+                {/* <div>
                     NAFASI DARASANI: {
                       report.position && report.total_students 
                         ? `${report.position} kati ya ${report.total_students}` 
                         : report.position || '-'
+                    }
+                  </div> */}
+
+                  <div>
+                    NAFASI DARASANI: {
+                      report.position 
+                        ? `${report.position} / ${reports.length}` 
+                        : '-'
                     }
                   </div>
               </div>
