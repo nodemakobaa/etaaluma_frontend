@@ -347,8 +347,9 @@ const AcademicGenerateResults = () => {
                             <td className="border border-slate-800 p-1 font-bold">
                               {st.average ? st.average.toFixed(2) : '0.00'}
                             </td>
+                            {/* Onyesha Namba ya Position au INC kama Points ni N/A au hana Position */}
                             <td className="border border-slate-800 p-1 font-extrabold text-emerald-700">
-                              {st.position}
+                              {st.points === 'N/A' || !st.position ? 'INC' : st.position}
                             </td>
                           </>
                         )}
