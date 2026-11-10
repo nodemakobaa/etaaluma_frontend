@@ -128,9 +128,13 @@ const EnterMarksPage = () => {
     setError("");
     setSuccessMsg("");
     const token = getAuthToken();
+
+    // HAPA NDIPO MAREKEBISHO YALIPO: Kama imeachwa tupu (""), tuma null ili database ifute
     const marksPayload = Object.keys(marksData).map((indexNo) => ({
       student_registration_no: indexNo,
-      score: marksData[indexNo] !== "" ? parseFloat(marksData[indexNo]) : null,
+      score: marksData[indexNo] !== "" && marksData[indexNo] !== null && marksData[indexNo] !== undefined
+        ? parseFloat(marksData[indexNo]) 
+        : null,
     }));
 
     try {
@@ -149,7 +153,7 @@ const EnterMarksPage = () => {
       });
       const data = await res.json();
       if (res.ok && data.status === "success") {
-        setSuccessMsg("Marks saved successfully!");
+        setSuccessMsg("Marks saved and cleared records updated successfully!");
       } else {
         setError(data.message || "Failed to save marks.");
       }
