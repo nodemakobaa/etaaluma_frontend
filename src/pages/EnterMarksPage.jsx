@@ -85,10 +85,12 @@ const EnterMarksPage = () => {
               examName: data.metadata.exam_name || "EXAMINATION",
             });
           }
+          
+          // Tumia student_id kama key ya marksData
           const initialMarks = {};
           studentList.forEach((std) => {
-            const studentKey = std.index_no || std.student_registration_no;
-            initialMarks[studentKey] = std.score !== null && std.score !== undefined ? std.score : "";
+            const studentIdKey = std.id || std.student_id;
+            initialMarks[studentIdKey] = std.score !== null && std.score !== undefined ? std.score : "";
           });
           setMarksData(initialMarks);
         } else {
@@ -107,17 +109,17 @@ const EnterMarksPage = () => {
     fetchStudents();
   }, [classId, subjectCode, examId, navigate]);
 
-  const handleScoreChange = (indexNo, value) => {
+  const handleScoreChange = (studentId, value) => {
     if (isEntryClosed) return;
     if (value === "") {
-      setMarksData((prev) => ({ ...prev, [indexNo]: "" }));
+      setMarksData((prev) => ({ ...prev, [studentId]: "" }));
       return;
     }
     const valNum = parseFloat(value);
     if (!isNaN(valNum) && valNum >= 0 && valNum <= 100) {
       setMarksData((prev) => ({
         ...prev,
-        [indexNo]: value,
+        [studentId]: value,
       }));
     }
   };
@@ -129,11 +131,11 @@ const EnterMarksPage = () => {
     setSuccessMsg("");
     const token = getAuthToken();
 
-    // HAPA NDIPO MAREKEBISHO YALIPO: Kama imeachwa tupu (""), tuma null ili database ifute
-    const marksPayload = Object.keys(marksData).map((indexNo) => ({
-      student_registration_no: indexNo,
-      score: marksData[indexNo] !== "" && marksData[indexNo] !== null && marksData[indexNo] !== undefined
-        ? parseFloat(marksData[indexNo]) 
+    // Tumia student_id na tuma null ikiwa imeachwa tupu
+    const marksPayload = Object.keys(marksData).map((studentId) => ({
+      student_id: parseInt(studentId, 10),
+      score: marksData[studentId] !== "" && marksData[studentId] !== null && marksData[studentId] !== undefined
+        ? parseFloat(marksData[studentId]) 
         : null,
     }));
 
@@ -285,12 +287,12 @@ const EnterMarksPage = () => {
               </tr>
             ) : (
               students.map((st, idx) => {
-                const key = st.index_no || st.student_registration_no;
-                const scoreVal = marksData[key] !== undefined ? marksData[key] : "";
+                const studentIdKey = st.id || st.student_id;
+                const scoreVal = marksData[studentIdKey] !== undefined ? marksData[studentIdKey] : "";
                 const grade = calculateGrade(scoreVal);
 
                 return (
-                  <tr key={key} className="hover:bg-slate-50 transition">
+                  <tr key={studentIdKey} className="hover:bg-slate-50 transition">
                     <td className="py-3 px-2 text-center text-xs text-slate-400 font-semibold">{idx + 1}</td>
                     <td className="py-3 px-3 font-mono text-xs text-slate-600">{st.index_no}</td>
                     <td className="py-3 px-3 uppercase font-semibold text-slate-700">{st.full_name}</td>
@@ -302,7 +304,7 @@ const EnterMarksPage = () => {
                         min="0"
                         max="100"
                         value={scoreVal}
-                        onChange={(e) => handleScoreChange(key, e.target.value)}
+                        onChange={(e) => handleScoreChange(studentIdKey, e.target.value)}
                         className="w-20 p-1.5 border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </td>
