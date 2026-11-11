@@ -31,9 +31,10 @@ const Login = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+       body: JSON.stringify({
           role: activeRole,
           registration_no: username,
+          username: username, 
           password: password,
         }),
       });
